@@ -41,7 +41,7 @@ def iter_fasta_seqs(filename):
 	fl.close()
 
 
-def add_db_to_translator(con, cur, seqdbname, whole_seq_fasta_name, region=0):
+def add_db_to_translator(con, cur, seqdbname, whole_seq_fasta_name, region=0, no_index=False):
 	'''
 	**kwargs:
 		server_type=None, database=None, user=None, password=None, port=None, host=None
@@ -71,11 +71,14 @@ def add_db_to_translator(con, cur, seqdbname, whole_seq_fasta_name, region=0):
 		if seq_count % 10000 == 0:
 			debug(1, 'processed %d' % seq_count)
 	debug(2, 'added %s sequences to SequenceIDs table' % seq_count)
-	debug(2, 'adding indices')
-	# we use the text_pattern_ops on the index, so querying left substring is same speed as exact query
-	# this way we can add long sequences to the table and query the subsequence
-	cur.execute('CREATE INDEX sequenceidstable_sequence_idx ON SequenceIDsTable (sequence text_pattern_ops)')
-	cur.execute('CREATE INDEX sequenceidstable_wholeseqid_idx ON SequenceIDsTable (sequence)')
+	if no_index:
+		debug(3, 'skipping add index. NOTE: must add later for optimal performance')
+	else:
+		debug(2, 'adding indices')
+		# we use the text_pattern_ops on the index, so querying left substring is same speed as exact query
+		# this way we can add long sequences to the table and query the subsequence
+		cur.execute('CREATE INDEX sequenceidstable_sequence_idx ON SequenceIDsTable (sequence text_pattern_ops)')
+		cur.execute('CREATE INDEX sequenceidstable_wholeseqid_idx ON SequenceIDsTable (sequence)')
 	debug(2, 'commiting')
 	con.commit()
 	debug(2, 'done')
@@ -91,6 +94,7 @@ def main(argv):
 	parser.add_argument('--password', help='postgres password')
 	parser.add_argument('--proc-title', help='name of the process (to view in ps aux)')
 	parser.add_argument('--debug-level', help='debug level (1 for debug ... 9 for critical)', default=2, type=int)
+	parser.add_argument('--no-index', help='no index creation after adding sequences (if adding multiple regions)', action='store_true')
 
 	parser.add_argument('-f', '--wholeseq-file', help='name of the whole sequence region fasta file (can be very long length for each sequence since we use left substring for match)', required=True)
 	parser.add_argument('-w', '--wholeseqdb', help='name of the whole sequence database (i.e. SILVA/GREENGENES)', default='SILVA')
@@ -105,7 +109,7 @@ def main(argv):
 	# get the database connection
 	con, cur = db_access.connect_translator_db(server_type=args.server_type, database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
 
-	add_db_to_translator(con, cur, seqdbname=args.wholeseqdb, whole_seq_fasta_name=args.wholeseq_file, region=args.region)
+	add_db_to_translator(con, cur, seqdbname=args.wholeseqdb, whole_seq_fasta_name=args.wholeseq_file, region=args.region, no_index=args.no_index)
 
 
 if __name__ == "__main__":
