@@ -1,0 +1,2 @@
+CREATE USER sequence_translator_dbbact WITH PASSWORD 'sequence_translator_dbbact' CREATEDB;
+CREATE DATABASE sequence_translator_dbbact WITH owner=sequence_translator_dbbact;
