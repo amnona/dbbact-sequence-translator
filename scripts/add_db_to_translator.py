@@ -78,7 +78,7 @@ def add_db_to_translator(con, cur, seqdbname, whole_seq_fasta_name, region=0, no
 		# we use the text_pattern_ops on the index, so querying left substring is same speed as exact query
 		# this way we can add long sequences to the table and query the subsequence
 		cur.execute('CREATE INDEX sequenceidstable_sequence_idx ON SequenceIDsTable (sequence text_pattern_ops)')
-		cur.execute('CREATE INDEX sequenceidstable_wholeseqid_idx ON SequenceIDsTable (sequence)')
+		cur.execute('CREATE INDEX sequenceidstable_wholeseqid_idx ON SequenceIDsTable (wholeseqid)')
 	debug(2, 'commiting')
 	con.commit()
 	debug(2, 'done')
