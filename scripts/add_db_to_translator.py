@@ -85,6 +85,7 @@ def main(argv):
 	parser = argparse.ArgumentParser(description='add_db_to_translator version %s' % __version__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--port', help='postgres port', default=5432, type=int)
 	parser.add_argument('--host', help='postgres host', default=None)
+	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password')
 	parser.add_argument('--database', help='postgres database', default='sequence_translator_dbbact')
 	parser.add_argument('--user', help='postgres user', default='sequence_translator_dbbact')
 	parser.add_argument('--password', help='postgres password', default='sequence_translator_dbbact')
@@ -102,7 +103,7 @@ def main(argv):
 		setproctitle.setproctitle(args.proc_title)
 
 	# get the database connection
-	con, cur = db_access.connect_translator_db(database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
+	con, cur = db_access.connect_translator_db(server_type=args.server_type, database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
 
 	add_db_to_translator(con, cur, seqdbname=args.wholeseqdb, whole_seq_fasta_name=args.wholeseq_file, region=args.region)
 

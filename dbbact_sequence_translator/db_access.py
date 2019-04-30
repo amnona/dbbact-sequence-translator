@@ -36,13 +36,13 @@ def connect_translator_db(server_type=None, database=None, user=None, password=N
     if server_type is not None:
         debug(1, 'connecting to sequence translator database using server type %s' % server_type)
         if server_type == 'develop':
-            cuser = 'sequence_translator_dbbact_develop'
-            cdatabase = 'sequence_translator_dbbact_develop'
-            cpassword = 'sequence_translator_dbbact_develop'
+            cuser = 'dev_sequence_translator_dbbact'
+            cdatabase = 'dev_sequence_translator_dbbact'
+            cpassword = 'dev_sequence_translator_dbbact'
         elif server_type == 'test':
-            cuser = 'sequence_translator_dbbact_test'
-            cdatabase = 'sequence_translator_dbbact_test'
-            cpassword = 'sequence_translator_dbbact_test'
+            cuser = 'test_sequence_translator_dbbact'
+            cdatabase = 'test_sequence_translator_dbbact'
+            cpassword = 'test_sequence_translator_dbbact'
         elif server_type == 'main':
             pass
         else:
