@@ -198,10 +198,11 @@ def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=
 						cid = cid.lower()
 						found_seqs.add(v)
 
-						# update the SequenceToSequenceTable
+						# # update the SequenceToSequenceTable
 						# update_sequencestosequences_table(con, cur, whole_seq_id=cid, whole_seq_db_id=whole_seq_dbid, dbbact_id=v)
-						# add to WholeSeqIDsTable if not already there
-						err = db_translate.add_whole_seq_id(con, cur, dbidVal=whole_seq_dbid, dbbactidVal=v, wholeseqidVal=cid, commit=False)
+						# # add to WholeSeqIDsTable if not already there
+						# err = db_translate.add_whole_seq_id(con, cur, dbidVal=whole_seq_dbid, dbbactidVal=v, wholeseqidVal=cid, commit=False)
+						err = ''
 						if err:
 							count_seq_failure += 1
 							break
