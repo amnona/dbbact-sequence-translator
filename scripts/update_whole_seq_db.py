@@ -135,7 +135,7 @@ def update_sequencestosequences_table(con, cur, whole_seq_id, whole_seq_db_id, d
 				if str(dbbact_id) in cdbbact_ids:
 					continue
 				cdbbact_ids.add(str(dbbact_id))
-				cur3.execute('UPDATE SequenceToSequenceTable SET dbbactIDs=%s WHERE sequence=%s', [','.join(cdbbact_ids), cseq])
+				# cur3.execute('UPDATE SequenceToSequenceTable SET dbbactIDs=%s WHERE sequence=%s', [','.join(cdbbact_ids), cseq])
 	# debug(2, 'finished')
 
 
@@ -198,11 +198,10 @@ def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=
 						cid = cid.lower()
 						found_seqs.add(v)
 
-						# # update the SequenceToSequenceTable
-						# update_sequencestosequences_table(con, cur, whole_seq_id=cid, whole_seq_db_id=whole_seq_dbid, dbbact_id=v)
-						# # add to WholeSeqIDsTable if not already there
-						# err = db_translate.add_whole_seq_id(con, cur, dbidVal=whole_seq_dbid, dbbactidVal=v, wholeseqidVal=cid, commit=False)
-						err = ''
+						# update the SequenceToSequenceTable
+						update_sequencestosequences_table(con, cur, whole_seq_id=cid, whole_seq_db_id=whole_seq_dbid, dbbact_id=v)
+						# add to WholeSeqIDsTable if not already there
+						err = db_translate.add_whole_seq_id(con, cur, dbidVal=whole_seq_dbid, dbbactidVal=v, wholeseqidVal=cid, commit=False)
 						if err:
 							count_seq_failure += 1
 							break
