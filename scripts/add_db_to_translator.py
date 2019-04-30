@@ -86,9 +86,9 @@ def main(argv):
 	parser.add_argument('--port', help='postgres port', default=5432, type=int)
 	parser.add_argument('--host', help='postgres host', default=None)
 	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password')
-	parser.add_argument('--database', help='postgres database', default='sequence_translator_dbbact')
-	parser.add_argument('--user', help='postgres user', default='sequence_translator_dbbact')
-	parser.add_argument('--password', help='postgres password', default='sequence_translator_dbbact')
+	parser.add_argument('--database', help='postgres database')
+	parser.add_argument('--user', help='postgres user')
+	parser.add_argument('--password', help='postgres password')
 	parser.add_argument('--proc-title', help='name of the process (to view in ps aux)')
 	parser.add_argument('--debug-level', help='debug level (1 for debug ... 9 for critical)', default=2, type=int)
 
