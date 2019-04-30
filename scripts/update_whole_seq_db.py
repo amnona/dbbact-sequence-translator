@@ -125,7 +125,7 @@ def update_sequencestosequences_table(con, cur, whole_seq_id, whole_seq_db_id, d
 		cur2.execute('SELECT dbbactIDs FROM SequenceToSequenceTable WHERE sequence=%s', [cseq])
 		# if doesn't exist - create
 		if cur2.rowcount == 0:
-			debug(2, 'sequence %s not found in sequencetosequencetable - creating' % (cur2.rowcount, cseq))
+			debug(2, 'sequence %s not found in sequencetosequencetable - creating' % cseq)
 			cur3.execute('INSERT INTO SequenceToSequenceTable (sequence, dbbactIDs) VALUES (%s, %s)', [cseq, str(dbbact_id)])
 		else:
 			debug(2, 'found %d ids for sequence %s' % (cur2.rowcount, cseq))
