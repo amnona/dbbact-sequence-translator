@@ -229,7 +229,7 @@ def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=
 
 
 def main(argv):
-	parser = argparse.ArgumentParser(description='update_whole_seq_db version %s.\nProcess all sequences in the waiting queue table NewSequencesTable' % __version__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+	parser = argparse.ArgumentParser(description='update_whole_seq_db version %s.\nProcess all sequences in the waiting queue table NewSequencesTable.\nShould be run daily.' % __version__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--port', help='postgres port', default=5432, type=int)
 	parser.add_argument('--host', help='postgres host', default=None)
 	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password', default='main')

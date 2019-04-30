@@ -72,3 +72,18 @@ scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v3.f
 
 scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v4.fa -w silva -r 1
 ```
+
+## run the sequence translator rest-api server to start listening on port 5021 (main) or 5022 (develop)
+for main (run on port 5021):
+```
+export DBBACT_SEQUENCE_TRANSLATOR_SERVER_TYPE="main"
+nohup gunicorn 'dbbact_sequence_translator.Server_Main:gunicorn(debug_level=3)' -b 0.0.0.0:5021 --workers 4 --name=main-sequence-translator-dbbact --timeout 300 --reload --capture-output --log-file log.txt
+```
+
+for develop (run on port 5022):
+```
+export DBBACT_SEQUENCE_TRANSLATOR_SERVER_TYPE="develop"
+nohup gunicorn 'dbbact_sequence_translator.Server_Main:gunicorn(debug_level=3)' -b 0.0.0.0:5022 --workers 4 --name=dev-sequence-translator-dbbact --timeout 300 --reload --capture-output --log-file log.txt
+```
+
+## if this is the first time, need to export all dbbact-server sequences and add to fast conversion table
