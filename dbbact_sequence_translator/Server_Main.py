@@ -23,12 +23,12 @@ def before_request():
         debug(6, 'got request for page %s' % request.url, request=request)
     else:
         debug(1, 'got local request for page %s' % request.url, request=request)
-    con, cur = db_access.connect_translator_db(server_type=app.config.get('DBBACT_SERVER_TYPE'),
-                                               host=app.config.get('DBBACT_POSTGRES_HOST'),
-                                               port=app.config.get('DBBACT_POSTGRES_PORT'),
-                                               database=app.config.get('DBBACT_POSTGRES_DATABASE'),
-                                               user=app.config.get('DBBACT_POSTGRES_USER'),
-                                               password=app.config.get('DBBACT_POSTGRES_PASSWORD'))
+    con, cur = db_access.connect_translator_db(server_type=app.config.get('DBBACT_SEQUENCE_TRANSLATOR_SERVER_TYPE'),
+                                               host=app.config.get('DBBACT_SEQUENCE_TRANSLATOR_POSTGRES_HOST'),
+                                               port=app.config.get('DBBACT_SEQUENCE_TRANSLATOR_POSTGRES_PORT'),
+                                               database=app.config.get('DBBACT_SEQUENCE_TRANSLATOR_POSTGRES_DATABASE'),
+                                               user=app.config.get('DBBACT_SEQUENCE_TRANSLATOR_POSTGRES_USER'),
+                                               password=app.config.get('DBBACT_SEQUENCE_TRANSLATOR_POSTGRES_PASSWORD'))
     g.con = con
     g.cur = cur
 
