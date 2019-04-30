@@ -115,28 +115,29 @@ def hash_sequences(con, cur, dbidVal, whole_seq_db_version=None, short_len=100, 
 def update_sequencestosequences_table(con, cur, whole_seq_id, whole_seq_db_id, dbbact_id):
 	'''
 	'''
-	# debug(2, 'update_sequencestosequences_table')
+	debug(2, 'update_sequencestosequences_table')
 	cur2 = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	cur3 = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
 	cur.execute('SELECT sequence FROM SequenceIDsTable WHERE WholeSeqID=%s', [whole_seq_id])
-	# debug(2, 'found %d matches for wholeseqid %s' % (cur.rowcount, whole_seq_id))
+	debug(2, 'found %d matches for wholeseqid %s' % (cur.rowcount, whole_seq_id))
 	for sequence_id_res in cur:
 		cseq = sequence_id_res['sequence']
 		cur2.execute('SELECT dbbactIDs FROM SequenceToSequenceTable WHERE sequence=%s', [cseq])
 		# if doesn't exist - create
 		if cur2.rowcount == 0:
-			# debug(2, 'sequence %s not found in sequencetosequencetable - creating' % (cur2.rowcount, cseq))
+			debug(2, 'sequence %s not found in sequencetosequencetable - creating' % (cur2.rowcount, cseq))
 			cur3.execute('INSERT INTO SequenceToSequenceTable (sequence, dbbactIDs) VALUES (%s, %s)', [cseq, str(dbbact_id)])
 		else:
-			# debug(2, 'found %d ids for sequence %s' % (cur2.rowcount, cseq))
+			debug(2, 'found %d ids for sequence %s' % (cur2.rowcount, cseq))
 			for cseq_to_seq_res in cur2:
 				cdbbact_ids = cseq_to_seq_res['dbbactids']
 				cdbbact_ids = set(cdbbact_ids.split(','))
 				if str(dbbact_id) in cdbbact_ids:
 					continue
 				cdbbact_ids.add(str(dbbact_id))
-				# cur3.execute('UPDATE SequenceToSequenceTable SET dbbactIDs=%s WHERE sequence=%s', [','.join(cdbbact_ids), cseq])
-	# debug(2, 'finished')
+				cur3.execute('UPDATE SequenceToSequenceTable SET dbbactIDs=%s WHERE sequence=%s', [','.join(cdbbact_ids), cseq])
+				debug(2, 'updated')
+	debug(2, 'finished')
 
 
 def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=True, short_len=150, no_delete=False):
