@@ -251,7 +251,7 @@ def main(argv):
 		setproctitle.setproctitle(args.proc_title)
 
 	# get the database connection
-	con, cur = db_access.connect_translator_db(server_type=args.sever_type, database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
+	con, cur = db_access.connect_translator_db(server_type=args.server_type, database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
 
 	update_whole_seq_db(con, cur, args.wholeseq_file, seqdbname=args.wholeseqdb, check_exists=not args.update_all, no_delete=args.no_delete)
 

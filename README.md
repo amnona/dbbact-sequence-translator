@@ -87,3 +87,12 @@ nohup gunicorn 'dbbact_sequence_translator.Server_Main:gunicorn(debug_level=3)' 
 ```
 
 ## if this is the first time, need to export all dbbact-server sequences and add to fast conversion table
+for main:
+```
+scripts/import_all_seqs.py
+```
+
+for develop:
+```
+scripts/import_all_seqs.py --seq-trans-addr http://0.0.0.0:5022
+```
