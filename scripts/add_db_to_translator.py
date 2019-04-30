@@ -88,7 +88,7 @@ def main(argv):
 	parser = argparse.ArgumentParser(description='add_db_to_translator version %s' % __version__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--port', help='postgres port', default=5432, type=int)
 	parser.add_argument('--host', help='postgres host', default=None)
-	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password')
+	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password', default='main')
 	parser.add_argument('--database', help='postgres database')
 	parser.add_argument('--user', help='postgres user')
 	parser.add_argument('--password', help='postgres password')

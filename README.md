@@ -57,18 +57,18 @@ scripts/get_v4_region.py -i ~/whole_seqs/SILVA_132_SSURef_tax_silva.fasta -l 500
 ## Install the region fasta files into the database
 for main:
 ```
-scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v1.fa -w silva -r 4
+scripts/add_db_to_translator.py --server-type main -f ~/whole_seqs/silva_v1.fa -w silva -r 4 --no-index
 
-scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v3.fa -w silva -r 3
+scripts/add_db_to_translator.py --server-type main -f ~/whole_seqs/silva_v3.fa -w silva -r 3 --no-index
 
-scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v4.fa -w silva -r 1
+scripts/add_db_to_translator.py --server-type main -f ~/whole_seqs/silva_v4.fa -w silva -r 1
 ```
 
 for develop:
 ```
-scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v1.fa -w silva -r 4
+scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v1.fa -w silva -r 4  --no-index
 
-scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v3.fa -w silva -r 3
+scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v3.fa -w silva -r 3  --no-index
 
 scripts/add_db_to_translator.py --server-type develop -f ~/whole_seqs/silva_v4.fa -w silva -r 1
 ```

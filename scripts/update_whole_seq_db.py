@@ -139,7 +139,7 @@ def update_sequencestosequences_table(con, cur, whole_seq_id, whole_seq_db_id, d
 	# debug(2, 'finished')
 
 
-def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=True, short_len=150):
+def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=True, short_len=150, no_delete=False):
 	'''
 	**kwargs:
 		server_type=None, database=None, user=None, password=None, port=None, host=None
@@ -218,20 +218,27 @@ def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=
 	for cseqid in all_ids:
 		if cseqid not in found_seqs:
 			err = db_translate.add_whole_seq_id(con, cur, dbidVal=whole_seq_dbid, dbbactidVal=cseqid, wholeseqidVal='na', commit=False)
+	if no_delete:
+		debug(3, 'skipping delete step')
+	else:
+		debug(2, 'deleting all new sequences from queue')
+		cur.execute('DELETE FROM NewSequencesTable')
 	debug(2, 'commiting')
 	con.commit()
 	debug(2, 'done')
 
 
 def main(argv):
-	parser = argparse.ArgumentParser(description='update_whole_seq_db version %s' % __version__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+	parser = argparse.ArgumentParser(description='update_whole_seq_db version %s.\nProcess all sequences in the waiting queue table NewSequencesTable' % __version__, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 	parser.add_argument('--port', help='postgres port', default=5432, type=int)
 	parser.add_argument('--host', help='postgres host', default=None)
-	parser.add_argument('--database', help='postgres database', default='sequence_translator_dbbact')
-	parser.add_argument('--user', help='postgres user', default='sequence_translator_dbbact')
-	parser.add_argument('--password', help='postgres password', default='sequence_translator_dbbact')
+	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password', default='main')
+	parser.add_argument('--database', help='postgres database')
+	parser.add_argument('--user', help='postgres user')
+	parser.add_argument('--password', help='postgres password')
 	parser.add_argument('--proc-title', help='name of the process (to view in ps aux)')
 	parser.add_argument('--debug-level', help='debug level (1 for debug ... 9 for critical)', default=2, type=int)
+	parser.add_argument('--no-delete', help='do not delete from new sequences queue (NewSequencesTable).', action='store_true')
 
 	parser.add_argument('-w', '--wholeseqdb', help='name of the whole sequence database (i.e. SILVA/GREENGENES)', default='SILVA')
 	parser.add_argument('-f', '--wholeseq-file', help='name of the whole sequence fasta file', required=True)
@@ -244,9 +251,9 @@ def main(argv):
 		setproctitle.setproctitle(args.proc_title)
 
 	# get the database connection
-	con, cur = db_access.connect_translator_db(database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
+	con, cur = db_access.connect_translator_db(server_type=args.sever_type, database=args.database, user=args.user, password=args.password, port=args.port, host=args.host)
 
-	update_whole_seq_db(con, cur, args.wholeseq_file, seqdbname=args.wholeseqdb, check_exists=not args.update_all)
+	update_whole_seq_db(con, cur, args.wholeseq_file, seqdbname=args.wholeseqdb, check_exists=not args.update_all, no_delete=args.no_delete)
 
 
 if __name__ == "__main__":
