@@ -157,9 +157,9 @@ def f_get_dbbact_ids_from_unknown_seq_fast():
     alldat = request.get_json()
     if alldat is None:
         return('data not provided', 400)
-    seq = alldat.get('sequence')
+    seq = alldat.get('sequences')
     if seq is None:
-        return('sequence value missing', 400)
+        return('sequences value missing', 400)
 
     err, seq_ids = db_translate.get_dbbact_ids_from_wholeseq_ids_fast(g.con, g.cur, seq)
     if err:
