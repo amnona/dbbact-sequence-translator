@@ -142,8 +142,20 @@ def update_sequencestosequences_table(con, cur, whole_seq_id, whole_seq_db_id, d
 
 def update_whole_seq_db(con, cur, whole_seq_fasta_name, seqdbname, check_exists=True, short_len=150, no_delete=False):
 	'''
-	**kwargs:
-		server_type=None, database=None, user=None, password=None, port=None, host=None
+	con, cur:
+		connection to the sequence translator database
+	whole_seq_fasta_name: str
+		name of the whole sequences fasta file (SILVA/GG) of full length 16S sequences
+	seqdbname: str
+		name of the database we're updating (i.e. 'SILVA' / 'GG')
+	check_exists: bool, optional
+		True (default) to just update new sequences in wholeseqidstable.
+		False to delete all entries in wholeseqidstable prior to processing
+	short_len: int, optional
+		used to calculate the hashes for the matching to the whole sequence fasta file
+	no_delete: bool, optional
+		False (default) to delete each entry from the NewSequencesTable after procesing.
+		True to keep in table (if multiple processing steps are needed (i.e. SILVA+GG), delete only after last step)
 	'''
 	debug(3, 'update_whole_seq_db started for database %s' % seqdbname)
 
@@ -235,8 +247,8 @@ def main(argv):
 	parser.add_argument('--host', help='postgres host', default=None)
 	parser.add_argument('--server-type', help='server type (develop/main/test). overridden by --database/user/password', default='main')
 	parser.add_argument('--database', help='postgres database')
-	parser.add_argument('--user', help='postgres user')
-	parser.add_argument('--password', help='postgres password')
+	parser.add_argument('--user', help='postgres user (to override --server-type)')
+	parser.add_argument('--password', help='postgres password (to override --server-type)')
 	parser.add_argument('--proc-title', help='name of the process (to view in ps aux)')
 	parser.add_argument('--debug-level', help='debug level (1 for debug ... 9 for critical)', default=2, type=int)
 	parser.add_argument('--no-delete', help='do not delete from new sequences queue (NewSequencesTable).', action='store_true')
