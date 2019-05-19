@@ -150,9 +150,31 @@ def f_add_sequences_to_queue():
     return 'ok'
 
 
-@Translate_Obj.route('/test2', methods=['POST', 'GET'])
+@Translate_Obj.route('/get_ids_for_seqs', methods=['POST', 'GET'])
 @auto.doc()
 def f_get_dbbact_ids_from_unknown_seq_fast():
+    '''
+    Title: Get dbBact IDs for a given sequence (from one of the supported regions)
+    URL: /get_ids_for_seqs
+    Method: GET/POST
+    URL Params:
+    Data Params: JSON
+        {
+            "sequences" : str
+                the sequence to get the IDs for (acgt)
+        }
+    Success Response:
+        Code : 201
+        Content :
+        {
+            "dbbact_ids" : list of list of int
+                each item is a list of dbBact ids that have the original sequence in one of the supported regions in a SILVA sequence
+        }
+    Details:
+        Validation:
+        Action:
+        Get dbbact sequenceIDs for all SILVA sequences matching the sequences on one of the supported regions (V1, V3, V4)
+    '''
     debug(3, 'f_get_dbbact_ids_from_unknown_seq_fast', request)
     alldat = request.get_json()
     if alldat is None:

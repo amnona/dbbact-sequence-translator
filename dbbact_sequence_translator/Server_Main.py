@@ -76,7 +76,7 @@ def gunicorn(server_type=None, pg_host=None, pg_port=None, pg_db=None, pg_user=N
     # to enable the stack traces on error
     # (from https://stackoverflow.com/questions/18059937/flask-app-raises-a-500-error-with-no-exception)
     app.debug = True
-    debug(6, 'starting dbbact rest-api server using gunicorn, debug_level=%d' % debug_level)
+    debug(6, 'starting dbbact sequence translator rest-api server using gunicorn, debug_level=%d' % debug_level)
     set_env_params()
     if server_type is not None:
         app.config['DBBACT_SEQUENCE_TRANSLATOR_SERVER_TYPE'] = server_type
