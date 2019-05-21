@@ -60,7 +60,7 @@ def get_seqs_from_db_id(con, cur, db_name, db_seq_id):
 	db_name: str
 		name of the database from which the id originates. can be "silva" or "gg"
 	db_seq_id: str
-		the sequence identifier in the database (i.e. 'FJ978486.1.1387' for silva or '1111883' for greengenes)
+		the sequence identifier in the database (i.e. 'FJ978486' for silva or '1111883' for greengenes)
 
 	Returns
 	-------
@@ -205,8 +205,8 @@ def get_dbbact_ids_from_wholeseq_ids(con, cur, whole_seq_ids, whole_seq_db_name=
 	Returns
 	-------
 	error: str or '' if ok
-	dict of {whole_seq_id(str): [dbbact ids(int)]
-		list of dbbact ids (value) for all the dbbact sequences matching each whole_seq_id (key)
+	ids : list of list on int
+		list of dbbact ids (value) for all the dbbact sequences matching each whole_seq_id (ordered same as whole_seq_ids)
 	'''
 	debug(1, 'get_dbbact_ids_from_wholeseq_ids for db %s version %s' % (whole_seq_db_name, whole_seq_db_version))
 	if whole_seq_db_name is not None:
@@ -218,7 +218,7 @@ def get_dbbact_ids_from_wholeseq_ids(con, cur, whole_seq_ids, whole_seq_db_name=
 	else:
 		whole_seq_db_id = None
 	try:
-		dbids = {}
+		dbids = []
 		for cseq in whole_seq_ids:
 			cids = set()
 			cseq = cseq.lower()
@@ -229,7 +229,7 @@ def get_dbbact_ids_from_wholeseq_ids(con, cur, whole_seq_ids, whole_seq_db_name=
 			res = cur.fetchall()
 			for cres in res:
 				cids.add(cres['dbbactid'])
-			dbids[cseq] = list(cids)
+			dbids.append(list(cids))
 		return '', dbids
 	except Exception as e:
 		msg = 'error encountered when getting dbbact ids from whole seq ids: %s' % e
@@ -286,12 +286,12 @@ def add_sequences_to_queue(con, cur, seq_info, commit=True):
 	-------
 	err: '' if ok or error string if error encountered
 	'''
-	debug(1, 'add_sequences_to_queue for %d sequences' % len(seq_info))
+	debug(3, 'add_sequences_to_queue for %d sequences' % len(seq_info))
 	try:
 		for cid, cseq in seq_info.items():
 			cseq = cseq.lower()
 			cur.execute('INSERT INTO NewSequencesTable (dbbactID, sequence) VALUES (%s, %s)', [cid, cseq])
-		debug(1, 'added %d sequences' % len(seq_info))
+		debug(3, 'added %d sequences' % len(seq_info))
 		if commit:
 			con.commit()
 		return ''
