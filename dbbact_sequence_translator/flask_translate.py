@@ -158,7 +158,7 @@ def f_get_dbbact_ids_from_unknown_seq_fast():
     Data Params: JSON
         {
             "sequences" : str
-                the sequence to get the IDs for (acgt)
+                the sequences to get the IDs for (acgt)
         }
     Success Response:
         Code : 201

@@ -316,9 +316,11 @@ def get_dbbact_ids_from_wholeseq_ids_fast(con, cur, seqs):
 		the matching dbbact ids for each input sequence
 	'''
 	all_seq_ids = []
+	cur.execute('PREPARE translate_ids(text) AS SELECT dbbactIDs FROM SequenceToSequenceTable WHERE sequence LIKE $1 LIMIT 1')
 	for cseq in seqs:
 		cseq = cseq.lower()
-		cur.execute('SELECT dbbactIDs FROM SequenceToSequenceTable WHERE sequence LIKE %s LIMIT 1', [cseq + '%%'])
+		cur.execute('EXECUTE translate_ids(%s)', [cseq + '%%'])
+		# cur.execute('SELECT dbbactIDs FROM SequenceToSequenceTable WHERE sequence LIKE %s LIMIT 1', [cseq + '%%'])
 		if cur.rowcount == 0:
 			ids = []
 		else:
