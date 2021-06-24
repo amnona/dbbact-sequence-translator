@@ -329,3 +329,41 @@ def get_dbbact_ids_from_wholeseq_ids_fast(con, cur, seqs):
 			ids = [int(x) for x in ids_str.split(',')]
 		all_seq_ids.append(ids)
 	return '', all_seq_ids
+
+
+def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
+	'''Get the name (highest level taxonomy) and fullname (SILVA fasta header) for a lust of whole seq ids
+
+	Parameters
+	----------
+	con, cur
+	whole_seq_ids: list of str
+		the whole seq ids (i.e. SILVA id jq782411) to get the names for
+	dbid: int
+		the id of the whole seq database to get the names from (from wholeseqdatabasetable - i.e. 1 for SILVA 13.2)
+
+	Returns
+	-------
+	names (list of str):
+		the highest level taxonomy name for each whole seq id (i.e. 'lactobacillus rhamnosus')
+	fullnames (list of str):
+		the full header for each whole seq id (i.e. '>JQ782411.1.1419 Bacteria;Firmicutes;Bacilli;Lactobacillales;Lactobacillaceae;Lactobacillus;Lactobacillus rhamnosus')
+	'''
+	names = []
+	fullnames = []
+	species = []
+	try:
+		for cseq in whole_seq_ids:
+			if dbid > 0:
+				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s AND dbid=%s LIMIT 1', [cseq, dbid])
+			else:
+				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s LIMIT 1', [cseq])
+			res = cur.fetchone()
+			names.append(res['name'])
+			fullnames.append(res['fullname'])
+			species.append(res['species'])
+		return '', names, fullnames, species
+	except Exception as e:
+		msg = "error %s encountered for get_whole_seq_names for ids %s" % (e, whole_seq_ids)
+		debug(3, msg)
+		return msg, [], [], []
