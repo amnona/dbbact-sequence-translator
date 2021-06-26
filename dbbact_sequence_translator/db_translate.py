@@ -331,7 +331,7 @@ def get_dbbact_ids_from_wholeseq_ids_fast(con, cur, seqs):
 	return '', all_seq_ids
 
 
-def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
+def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True):
 	'''Get the name (highest level taxonomy) and fullname (SILVA fasta header) for a lust of whole seq ids
 
 	Parameters
@@ -341,6 +341,9 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
 		the whole seq ids (i.e. SILVA id jq782411) to get the names for
 	dbid: int
 		the id of the whole seq database to get the names from (from wholeseqdatabasetable - i.e. 1 for SILVA 13.2)
+		0 to get from all databases
+	pnly_species: bool, optional
+		True to only return sequences with species level annotation in wholeseqdb
 
 	Returns
 	-------
@@ -350,6 +353,8 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
 		the highest level taxonomy name for each whole seq id (i.e. 'lactobacillus rhamnosus')
 	fullnames (list of str):
 		the full header for each whole seq id (i.e. '>JQ782411.1.1419 Bacteria;Firmicutes;Bacilli;Lactobacillales;Lactobacillaceae;Lactobacillus;Lactobacillus rhamnosus')
+	ids: list of int
+		the wholeseqdb sequence ids
 	'''
 	names = []
 	fullnames = []
@@ -363,6 +368,9 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
 			else:
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s LIMIT 1', [cseq])
 			res = cur.fetchone()
+			if only_species:
+				if res['species'] == '':
+					continue
 			names.append(res['name'])
 			fullnames.append(res['fullname'])
 			species.append(res['species'])
