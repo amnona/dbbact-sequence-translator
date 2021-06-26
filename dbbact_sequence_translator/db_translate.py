@@ -30,6 +30,9 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 		primer = primer.lower()
 	if not exact:
 		debug(1, 'looking for non exact matches for sequence %s' % sequence)
+		cur.execute('EXPLAIN ANALYZE SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
+		res = cur.fetchall()
+		debug(5, res)
 		cur.execute('SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
 	else:
 		debug(1, 'looking for exact matches for sequence %s' % sequence)
