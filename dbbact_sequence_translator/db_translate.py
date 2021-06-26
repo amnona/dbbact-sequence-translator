@@ -39,7 +39,7 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 		debug(1, 'no matches found')
 		return '', []
 
-	debug(1, 'found %d matches' % cur.rowcount)
+	debug(5, 'found %d matches' % cur.rowcount)
 	seqids = []
 	res = cur.fetchall()
 	for cres in res:
@@ -47,7 +47,7 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 			if cres['primer'] != primer:
 				continue
 		seqids.append(cres['wholeseqid'])
-	debug(2, 'found %d matches with correct region' % len(seqids))
+	debug(5, 'found %d matches with correct region' % len(seqids))
 	return '', seqids
 
 
@@ -331,8 +331,8 @@ def get_dbbact_ids_from_wholeseq_ids_fast(con, cur, seqs):
 	return '', all_seq_ids
 
 
-def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True):
-	'''Get the name (highest level taxonomy) and fullname (SILVA fasta header) for a lust of whole seq ids
+def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True, max_num=100):
+	'''Get the name (highest level taxonomy) and fullname (SILVA fasta header) for a list of whole seq ids
 
 	Parameters
 	----------
@@ -344,6 +344,9 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True):
 		0 to get from all databases
 	pnly_species: bool, optional
 		True to only return sequences with species level annotation in wholeseqdb
+	max_num: int, optional
+		if 0, get all matching ids
+		if >0, get at most max_num matching ids. NOTE: if only_species is True, limit is on the number of ids which have non-empty species
 
 	Returns
 	-------
@@ -375,6 +378,10 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True):
 			fullnames.append(res['fullname'])
 			species.append(res['species'])
 			ids.append(cseq)
+			# do we have enough results?
+			if max_num > 0:
+				if len(ids) >= max_num:
+					break
 		return '', names, fullnames, species, ids
 	except Exception as e:
 		msg = "error %s encountered for get_whole_seq_names for ids %s" % (e, whole_seq_ids)
