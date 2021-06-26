@@ -1,0 +1,102 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: wholeseqnamestable; Type: TABLE; Schema: public; Owner: sequence_translator_dbbact; Tablespace: 
+--
+
+CREATE TABLE wholeseqnamestable (
+    id integer NOT NULL,
+    wholeseqid text NOT NULL,
+    dbid integer,
+    name text,
+    fullname text,
+    species text
+);
+
+
+ALTER TABLE public.wholeseqnamestable OWNER TO sequence_translator_dbbact;
+
+--
+-- Name: WholeSeqNamesTable_id_seq; Type: SEQUENCE; Schema: public; Owner: sequence_translator_dbbact
+--
+
+CREATE SEQUENCE "WholeSeqNamesTable_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."WholeSeqNamesTable_id_seq" OWNER TO sequence_translator_dbbact;
+
+--
+-- Name: WholeSeqNamesTable_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sequence_translator_dbbact
+--
+
+ALTER SEQUENCE "WholeSeqNamesTable_id_seq" OWNED BY wholeseqnamestable.id;
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: sequence_translator_dbbact
+--
+
+ALTER TABLE ONLY wholeseqnamestable ALTER COLUMN id SET DEFAULT nextval('"WholeSeqNamesTable_id_seq"'::regclass);
+
+
+--
+-- Name: wholeseqnamestable_pkey; Type: CONSTRAINT; Schema: public; Owner: sequence_translator_dbbact; Tablespace: 
+--
+
+ALTER TABLE ONLY wholeseqnamestable
+    ADD CONSTRAINT wholeseqnamestable_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: wholeseqnamestable_species_idx; Type: INDEX; Schema: public; Owner: sequence_translator_dbbact; Tablespace: 
+--
+
+CREATE INDEX wholeseqnamestable_species_idx ON wholeseqnamestable USING btree (species);
+
+
+--
+-- Name: wholeseqnamestable_wholeseqid_dbid_idx; Type: INDEX; Schema: public; Owner: sequence_translator_dbbact; Tablespace: 
+--
+
+CREATE INDEX wholeseqnamestable_wholeseqid_dbid_idx ON wholeseqnamestable USING btree (wholeseqid, dbid);
+
+
+--
+-- Name: wholeseqnamestable_wholeseqid_idx; Type: INDEX; Schema: public; Owner: sequence_translator_dbbact; Tablespace: 
+--
+
+CREATE INDEX wholeseqnamestable_wholeseqid_idx ON wholeseqnamestable USING btree (wholeseqid);
+
+
+--
+-- Name: WholeSeqNamesTable_dbid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: sequence_translator_dbbact
+--
+
+ALTER TABLE ONLY wholeseqnamestable
+    ADD CONSTRAINT "WholeSeqNamesTable_dbid_fkey" FOREIGN KEY (dbid) REFERENCES wholeseqdatabasetable(dbid) ON DELETE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
