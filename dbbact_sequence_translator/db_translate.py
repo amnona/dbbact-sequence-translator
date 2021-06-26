@@ -344,6 +344,8 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
 
 	Returns
 	-------
+	err: str
+		empty ('') if ok, otherwise the error encountered
 	names (list of str):
 		the highest level taxonomy name for each whole seq id (i.e. 'lactobacillus rhamnosus')
 	fullnames (list of str):
@@ -352,9 +354,11 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
 	names = []
 	fullnames = []
 	species = []
+	ids = []
 	try:
 		for cseq in whole_seq_ids:
 			if dbid > 0:
+				cseq = cseq.lower()
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s AND dbid=%s LIMIT 1', [cseq, dbid])
 			else:
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s LIMIT 1', [cseq])
@@ -362,8 +366,52 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1):
 			names.append(res['name'])
 			fullnames.append(res['fullname'])
 			species.append(res['species'])
-		return '', names, fullnames, species
+			ids.append(cseq)
+		return '', names, fullnames, species, ids
 	except Exception as e:
 		msg = "error %s encountered for get_whole_seq_names for ids %s" % (e, whole_seq_ids)
 		debug(3, msg)
-		return msg, [], [], []
+		return msg, [], [], [], []
+
+
+def get_species_seqs(con, cur, species, dbid=1):
+	'''Get the list of dbbact sequences matching the whole sequence database species name
+
+	Parameters
+	----------
+	con, cur
+	species: str
+		name of the species to search for
+	dbid: int
+		the id of the whole seq database to get the names from (from wholeseqdatabasetable - i.e. 1 for SILVA 13.2).
+		0 indicates to get matches from all sequence databases
+
+	Returns
+	-------
+	err: str
+		empty ('') if ok, otherwise the error encountered
+	ids: list of int
+		the dbbact sequece ids matching the whole seq database species
+	'''
+	species = species.lower()
+	try:
+		if dbid > 0:
+			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s AND dbid=%s', [species, dbid])
+		else:
+			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s', [species])
+
+		res = cur.fetchall()
+		wsids = []
+		for cres in res:
+			wsids.append(cres['wholeseqid'])
+
+		err, ids = get_dbbact_ids_from_wholeseq_ids(con, cur, wsids)
+		if err:
+			return err, []
+		ids = [item for sublist in ids for item in sublist]
+		ids = list(set(ids))
+		return '', ids
+	except Exception as e:
+		msg = "error %s encountered for get_species_seqs for species %s" % (e, species)
+		debug(3, msg)
+		return msg, []
