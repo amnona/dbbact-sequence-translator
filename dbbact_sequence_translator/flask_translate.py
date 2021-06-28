@@ -288,4 +288,5 @@ def f_get_species_seqs_f():
     if whole_seq_db_id is None:
         whole_seq_db_id = 0
     err, ids = db_translate.get_species_seqs(g.con, g.cur, species, whole_seq_db_id)
+    debug(2, 'found %d sequences matching the species %s' % (len(ids), species))
     return json.dumps({"ids": ids})

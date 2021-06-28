@@ -419,13 +419,13 @@ def get_species_seqs(con, cur, species, dbid=1):
 			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s AND dbid=%s', [species, dbid])
 		else:
 			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s', [species])
-
 		res = cur.fetchall()
+		debug(2, 'found %d wholeseq ids matching the species %s' % (len(res), species))
 		wsids = []
 		for cres in res:
 			wsids.append(cres['wholeseqid'])
 
-		err, ids = get_dbbact_ids_from_wholeseq_ids(con, cur, wsids)
+		err, ids = get_dbbact_ids_from_wholeseq_ids_fast(con, cur, wsids)
 		if err:
 			return err, []
 		ids = [item for sublist in ids for item in sublist]
