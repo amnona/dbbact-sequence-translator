@@ -30,9 +30,9 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 		primer = primer.lower()
 	if not exact:
 		debug(1, 'looking for non exact matches for sequence %s' % sequence)
-		cur.execute('EXPLAIN ANALYZE SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
-		res = cur.fetchall()
-		debug(5, res)
+		# cur.execute('EXPLAIN ANALYZE SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
+		# res = cur.fetchall()
+		# debug(5, res)
 		cur.execute('SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
 	else:
 		debug(1, 'looking for exact matches for sequence %s' % sequence)
@@ -42,7 +42,7 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 		debug(1, 'no matches found')
 		return '', []
 
-	debug(5, 'found %d matches' % cur.rowcount)
+	debug(1, 'found %d matches' % cur.rowcount)
 	seqids = []
 	res = cur.fetchall()
 	for cres in res:
@@ -50,7 +50,7 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 			if cres['primer'] != primer:
 				continue
 		seqids.append(cres['wholeseqid'])
-	debug(5, 'found %d matches with correct region' % len(seqids))
+	debug(2, 'found %d matches with correct region' % len(seqids))
 	return '', seqids
 
 
@@ -368,8 +368,8 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True, max_
 	ids = []
 	try:
 		for cseq in whole_seq_ids:
+			cseq = cseq.lower()
 			if dbid > 0:
-				cseq = cseq.lower()
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s AND dbid=%s LIMIT 1', [cseq, dbid])
 			else:
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s LIMIT 1', [cseq])
