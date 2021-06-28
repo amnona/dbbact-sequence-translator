@@ -189,3 +189,104 @@ def f_get_dbbact_ids_from_unknown_seq_fast():
         debug(2, 'found %d dbbacct ids matchihng the sequence' % len(dbbact_ids))
     return json.dumps({'dbbact_ids': dbbact_ids})
     # return json.dumps({'dbbact_ids': list(ret_seqs), 'silva_ids': seq_ids})
+
+
+@Translate_Obj.route('/get_whole_seq_taxonomy', methods=['POST', 'GET'])
+@auto.doc()
+def f_get_whole_seq_taxonomy():
+    """
+    Title: Get SILVA taxonomy strings for a given sequence (from one of the supported regions)
+    URL: /get_whole_seq_taxonomy
+    Method: GET/POST
+    URL Params:
+    Data Params: JSON
+        {
+            sequence : str
+                the sequence (ACGT) to get the wholeseqdb taxonomies for
+            "whole_seq_db_id": int or None, optional
+                the id (from wholeseqdatabasetable) of the whole sequence database to use (1 for silva 13.2, etc.)
+                0 or None to use taxonomies from all databases
+        }
+    Success Response:
+        Code : 201
+        Content :
+        {
+            "seq_ids" : list of str
+                Whole sequence database ids matching the query sequence on the region (i.e. SILVA IDs such as jq782411 etc.)
+            "names": list of str
+                The highest resolution names matching the query sequence on the region (i.e. 'lactobacillus rhamnosus')
+            "full_names": list of str
+                The full fasta headers matching the query sequence on the region (i.e. '>JQ782411.1.1419 Bacteria;Firmicutes;Bacilli;Lactobacillales;Lactobacillaceae;Lactobacillus;Lactobacillus rhamnosus')
+            "species": list of str
+                the species name matching the query sequence. if no species name is available, empty string ''
+            "ids": list of str
+                the whole sequence database id of each match (i.e. 'JQ782411')
+        }
+    Details:
+        Validation:
+        Action:
+        Add all sequences that don't already exist in SequencesTable
+    """
+    debug(3, 'f_get_whole_seq_taxonomy', request)
+    cfunc = f_get_whole_seq_taxonomy
+    alldat = request.get_json()
+    if alldat is None:
+        return(getdoc(cfunc))
+    sequence = alldat.get('sequence')
+    if sequence is None:
+        return(getdoc(cfunc))
+    whole_seq_db_id = alldat.get('whole_seq_db_id')
+    if whole_seq_db_id is None:
+        whole_seq_db_id = 0
+
+    err, seqids = db_translate.get_whole_seq_ids(g.con, g.cur, sequence=sequence)
+    if err:
+        return(err, 400)
+
+    debug(2, 'found %d wholeseq matching sequences' % len(seqids))
+    err, names, fullnames, species, ids = db_translate.get_whole_seq_names(g.con, g.cur, whole_seq_ids=seqids, dbid=whole_seq_db_id)
+    return json.dumps({"seq_ids": seqids, "names": names, "fullnames": fullnames, 'species': species, 'ids': ids})
+
+
+@Translate_Obj.route('/get_species_seqs', methods=['POST', 'GET'])
+@auto.doc()
+def f_get_species_seqs_f():
+    """
+    Title: Get dbBact sequence ids matching a given SILVA specien name
+    URL: /get_species_seqs
+    Method: GET/POST
+    URL Params:
+    Data Params: JSON
+        {
+            "species" : str
+                the species to search for (i.e. "akkermansia muciniphila")
+            "whole_seq_db_id": int or None, optional
+                the id (from wholeseqdatabasetable) of the whole sequence database to use (1 for silva 13.2, etc.)
+                0 or None to use taxonomies from all databases
+        }
+    Success Response:
+        Code : 201
+        Content :
+        {
+            "ids" : list of int
+                dbBact sequence ids matching any of the SILVA sequences that have this species name
+        }
+    Details:
+        Validation:
+        Action:
+        Add all sequences that don't already exist in SequencesTable
+    """
+    debug(3, 'f_get_species_seqs_f', request)
+    cfunc = f_get_species_seqs_f
+    alldat = request.get_json()
+    if alldat is None:
+        return(getdoc(cfunc))
+    species = alldat.get('species')
+    if species is None:
+        return(getdoc(cfunc))
+    whole_seq_db_id = alldat.get('whole_seq_db_id')
+    if whole_seq_db_id is None:
+        whole_seq_db_id = 0
+    err, ids = db_translate.get_species_seqs(g.con, g.cur, species, whole_seq_db_id)
+    debug(2, 'found %d sequences matching the species %s' % (len(ids), species))
+    return json.dumps({"ids": ids})

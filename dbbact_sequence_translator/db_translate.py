@@ -30,6 +30,9 @@ def get_whole_seq_ids(con, cur, sequence, primer=None, exact=False):
 		primer = primer.lower()
 	if not exact:
 		debug(1, 'looking for non exact matches for sequence %s' % sequence)
+		# cur.execute('EXPLAIN ANALYZE SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
+		# res = cur.fetchall()
+		# debug(5, res)
 		cur.execute('SELECT * FROM SequenceIDsTable WHERE sequence LIKE %s', [sequence + '%%'])
 	else:
 		debug(1, 'looking for exact matches for sequence %s' % sequence)
@@ -329,3 +332,106 @@ def get_dbbact_ids_from_wholeseq_ids_fast(con, cur, seqs):
 			ids = [int(x) for x in ids_str.split(',')]
 		all_seq_ids.append(ids)
 	return '', all_seq_ids
+
+
+def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True, max_num=100):
+	'''Get the name (highest level taxonomy) and fullname (SILVA fasta header) for a list of whole seq ids
+
+	Parameters
+	----------
+	con, cur
+	whole_seq_ids: list of str
+		the whole seq ids (i.e. SILVA id jq782411) to get the names for
+	dbid: int
+		the id of the whole seq database to get the names from (from wholeseqdatabasetable - i.e. 1 for SILVA 13.2)
+		0 to get from all databases
+	pnly_species: bool, optional
+		True to only return sequences with species level annotation in wholeseqdb
+	max_num: int, optional
+		if 0, get all matching ids
+		if >0, get at most max_num matching ids. NOTE: if only_species is True, limit is on the number of ids which have non-empty species
+
+	Returns
+	-------
+	err: str
+		empty ('') if ok, otherwise the error encountered
+	names (list of str):
+		the highest level taxonomy name for each whole seq id (i.e. 'lactobacillus rhamnosus')
+	fullnames (list of str):
+		the full header for each whole seq id (i.e. '>JQ782411.1.1419 Bacteria;Firmicutes;Bacilli;Lactobacillales;Lactobacillaceae;Lactobacillus;Lactobacillus rhamnosus')
+	ids: list of int
+		the wholeseqdb sequence ids
+	'''
+	names = []
+	fullnames = []
+	species = []
+	ids = []
+	try:
+		for cseq in whole_seq_ids:
+			cseq = cseq.lower()
+			if dbid > 0:
+				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s AND dbid=%s LIMIT 1', [cseq, dbid])
+			else:
+				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s LIMIT 1', [cseq])
+			if cur.rowcount == 0:
+				continue
+			res = cur.fetchone()
+			if only_species:
+				if res['species'] == '':
+					continue
+			names.append(res['name'])
+			fullnames.append(res['fullname'])
+			species.append(res['species'])
+			ids.append(cseq)
+			# do we have enough results?
+			if max_num > 0:
+				if len(ids) >= max_num:
+					break
+		return '', names, fullnames, species, ids
+	except Exception as e:
+		msg = "error %s encountered for get_whole_seq_names for ids %s" % (e, whole_seq_ids)
+		debug(3, msg)
+		return msg, [], [], [], []
+
+
+def get_species_seqs(con, cur, species, dbid=1):
+	'''Get the list of dbbact sequences matching the whole sequence database species name
+
+	Parameters
+	----------
+	con, cur
+	species: str
+		name of the species to search for
+	dbid: int
+		the id of the whole seq database to get the names from (from wholeseqdatabasetable - i.e. 1 for SILVA 13.2).
+		0 indicates to get matches from all sequence databases
+
+	Returns
+	-------
+	err: str
+		empty ('') if ok, otherwise the error encountered
+	ids: list of int
+		the dbbact sequece ids matching the whole seq database species
+	'''
+	species = species.lower()
+	try:
+		if dbid > 0:
+			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s AND dbid=%s', [species, dbid])
+		else:
+			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s', [species])
+		res = cur.fetchall()
+		debug(2, 'found %d wholeseq ids matching the species %s' % (len(res), species))
+		wsids = []
+		for cres in res:
+			wsids.append(cres['wholeseqid'])
+
+		err, ids = get_dbbact_ids_from_wholeseq_ids(con, cur, wsids)
+		if err:
+			return err, []
+		ids = [item for sublist in ids for item in sublist]
+		ids = list(set(ids))
+		return '', ids
+	except Exception as e:
+		msg = "error %s encountered for get_species_seqs for species %s" % (e, species)
+		debug(3, msg)
+		return msg, []
