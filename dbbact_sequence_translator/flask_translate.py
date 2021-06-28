@@ -239,7 +239,7 @@ def f_get_whole_seq_taxonomy():
     if whole_seq_db_id is None:
         whole_seq_db_id = 0
 
-    err, seqids = db_translate.get_whole_seq_ids_fast(g.con, g.cur, seqids=seqids)
+    err, seqids = db_translate.get_dbbact_ids_from_wholeseq_ids_fast(g.con, g.cur, seqids=seqids)
     if err:
         return(err, 400)
     # make it into a single list
