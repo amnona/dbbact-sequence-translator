@@ -373,6 +373,8 @@ def get_whole_seq_names(con, cur, whole_seq_ids, dbid=1, only_species=True, max_
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s AND dbid=%s LIMIT 1', [cseq, dbid])
 			else:
 				cur.execute('SELECT name, fullname, species FROM wholeseqnamestable WHERE wholeseqid=%s LIMIT 1', [cseq])
+			if cur.rowcount == 0:
+				continue
 			res = cur.fetchone()
 			if only_species:
 				if res['species'] == '':

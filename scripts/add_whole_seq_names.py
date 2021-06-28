@@ -39,7 +39,7 @@ def iter_fasta_seqs(filename):
 	fl.close()
 
 
-def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type):
+def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type, add_only_species=True):
 	'''
 	'''
 	debug(3, 'add_whole_seq_names started for database %d file %s' % (seqdb_id, whole_seq_fasta_name))
@@ -59,7 +59,9 @@ def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type):
 	debug(1, 'processing fasta file %s' % whole_seq_fasta_name)
 	seq_count = 0
 	ok_seqs = 0
+	no_species = 0
 	for cseq, chead in iter_fasta_seqs(whole_seq_fasta_name):
+		seq_count += 1
 		# lets prepare the id string (sometimes has format 'ID.START.END TAXONOMY' we need to remove)
 		cid = chead.split(' ')[0]
 		split_cid = cid.split('.')
@@ -103,13 +105,16 @@ def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type):
 			if is_species:
 				cspecies = ctax
 			else:
+				no_species += 1
 				cspecies = ''
+				# we don't add non-species containing silva ids
+				if add_only_species:
+					continue
 			cur.execute('INSERT INTO WholeSeqNamesTable (wholeseqid, dbid, name, fullname, species) VALUES (%s, %s, %s, %s, %s)', [cid, seqdb_id, ctax, chead.lower(), cspecies])
 			ok_seqs += 1
-		seq_count += 1
 		if seq_count % 10000 == 0:
 			debug(1, 'processed %d' % seq_count)
-	debug(2, 'scanned %s, added %s sequences to SequenceIDs table' % (seq_count, ok_seqs))
+	debug(2, 'scanned %s, found %d with no species, added %s sequences to SequenceIDs table' % (seq_count, no_species, ok_seqs))
 
 	debug(2, 'adding indices')
 	debug(2, 'wholeseqnamestable_wholeseqid_dbid_idx')
@@ -117,7 +122,7 @@ def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type):
 	debug(2, 'wholeseqnamestable_wholeseqid_idx')
 	cur.execute('CREATE INDEX "wholeseqnamestable_wholeseqid_idx" ON "public"."wholeseqnamestable"("wholeseqid")')
 	debug(2, 'wholeseqnamestable_species_idx')
-	cur.execute('CREATE INDEX "wholeseqnamestable_species_idx" ON "public"."wholeseqnamestable"("species")')
+	cur.execute('CREATE INDEX "wholeseqnamestable_species_idx" ON "public"."wholeseqnamestable"("species" text_pattern_ops)')
 
 	debug(2, 'commiting')
 	con.commit()
