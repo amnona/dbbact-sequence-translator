@@ -201,10 +201,8 @@ def f_get_whole_seq_taxonomy():
     URL Params:
     Data Params: JSON
         {
-            "sequence" : str
-                the sequence to get the IDs for (acgt)
-            "primer" : str, optional
-                name of the primer region (i.e. 'V4'). if 0 or not supplied, give names from all taxonomies
+            seqids : list of int
+                the dbBact sequence IDs to get the wholeseqdb taxonomies for
             "whole_seq_db_id": int or None, optional
                 the id (from wholeseqdatabasetable) of the whole sequence database to use (1 for silva 13.2, etc.)
                 0 or None to use taxonomies from all databases
@@ -234,17 +232,19 @@ def f_get_whole_seq_taxonomy():
     alldat = request.get_json()
     if alldat is None:
         return(getdoc(cfunc))
-    sequence = alldat.get('sequence')
-    if sequence is None:
+    seqids = alldat.get('seqids')
+    if seqids is None:
         return(getdoc(cfunc))
-    primer = alldat.get('primer')
     whole_seq_db_id = alldat.get('whole_seq_db_id')
     if whole_seq_db_id is None:
         whole_seq_db_id = 0
 
-    err, seqids = db_translate.get_whole_seq_ids(g.con, g.cur, sequence=sequence, primer=primer)
+    err, seqids = db_translate.get_whole_seq_ids_fast(g.con, g.cur, seqids=seqids)
     if err:
         return(err, 400)
+    # make it into a single list
+    seqids = [item for sublist in seqids for item in sublist]
+
     debug(2, 'added/found %d sequences' % len(seqids))
     err, names, fullnames, species, ids = db_translate.get_whole_seq_names(g.con, g.cur, whole_seq_ids=seqids, dbid=whole_seq_db_id)
     return json.dumps({"seq_ids": seqids, "names": names, "fullnames": fullnames, 'species': species, 'ids': ids})
