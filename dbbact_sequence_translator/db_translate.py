@@ -425,7 +425,7 @@ def get_species_seqs(con, cur, species, dbid=1):
 		for cres in res:
 			wsids.append(cres['wholeseqid'])
 
-		err, ids = get_dbbact_ids_from_wholeseq_ids_fast(con, cur, wsids)
+		err, ids = get_dbbact_ids_from_wholeseq_ids(con, cur, wsids)
 		if err:
 			return err, []
 		ids = [item for sublist in ids for item in sublist]
