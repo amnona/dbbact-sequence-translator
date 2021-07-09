@@ -6,6 +6,8 @@ import sys
 from dbbact_sequence_translator.utils import debug, SetDebugLevel
 from dbbact_sequence_translator import db_access
 
+'''Add all whole sequence database sequence names, so we can look for exact sequence species matches
+'''
 
 __version__ = 1.1
 
