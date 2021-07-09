@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-# Add the total counts of annotations and experiments for each sequence in dbbact
+# Put all dbBact sequences in to the sequence translator update queue
+# need to run after adding a new whole seq database / region
 
-'''Add the total counts of annotations and experiments for each sequence in dbbact
+'''Put all dbBact sequences in to the sequence translator update queue
+need to run after adding a new whole seq database / region
 '''
 
 import sys

@@ -123,7 +123,7 @@ def SequencesWholeToFile(con, cur, fileName, dbid):
 	return ''
 
 
-def add_whole_seq_id(con, cur, dbidVal, dbbactidVal, wholeseqidVal, commit=True):
+def add_whole_seq_id(con, cur, dbidVal, dbbactidVal, wholeseqidVal, commit=True, test_exists=True):
 	'''
 	Add record to WholeSeqIDsTable table
 
@@ -138,6 +138,9 @@ def add_whole_seq_id(con, cur, dbidVal, dbbactidVal, wholeseqidVal, commit=True)
 		the id in different db (e.g. silva, gg)
 	commit: bool, optional
 		true to commit, false to insert without commit
+	test_exists: bool, optional
+		if True, check if sequence exists before adding.
+		if False, skip the check (when populating an empty database - for speed)
 
 	Returns
 	-------
@@ -145,8 +148,10 @@ def add_whole_seq_id(con, cur, dbidVal, dbbactidVal, wholeseqidVal, commit=True)
 	'''
 	debug(1, 'add_whole_seq_id')
 	try:
-		# check if we already have this entry
-		err, existFlag = test_whole_seq_id_exists(con, cur, dbidVal, dbbactidVal, wholeseqidVal)
+		existFlag = False
+		if test_exists:
+			# check if we already have this entry
+			err, existFlag = test_whole_seq_id_exists(con, cur, dbidVal, dbbactidVal, wholeseqidVal)
 		if not existFlag:
 			cur.execute('INSERT INTO wholeseqidstable (dbid, dbbactid, wholeseqid) VALUES (%s, %s, %s)', [dbidVal, dbbactidVal, wholeseqidVal])
 			if commit:
@@ -276,7 +281,7 @@ def get_whole_seq_db_id_from_name(con, cur, whole_seq_db_name, whole_seq_db_vers
 
 def add_sequences_to_queue(con, cur, seq_info, commit=True):
 	'''Add sequences to the waiting for processing table.
-	These sequences will be added daily to the wholeseqids table
+	These sequences will be added daily to the wholeseqids table using the dbbact-server/dbbact_jobs/update_whole_seq_db.py
 
 	Parameters
 	----------
@@ -425,11 +430,13 @@ def get_species_seqs(con, cur, species, dbid=1):
 		for cres in res:
 			wsids.append(cres['wholeseqid'])
 
+		debug(2, 'Getting dbbact ids from %d wholeseq ids' % len(wsids))
 		err, ids = get_dbbact_ids_from_wholeseq_ids(con, cur, wsids)
 		if err:
 			return err, []
 		ids = [item for sublist in ids for item in sublist]
 		ids = list(set(ids))
+		debug(2, 'Got %d dbbact ids' % len(ids))
 		return '', ids
 	except Exception as e:
 		msg = "error %s encountered for get_species_seqs for species %s" % (e, species)
