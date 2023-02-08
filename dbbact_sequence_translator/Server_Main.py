@@ -55,7 +55,7 @@ def gunicorn(server_type=None, pg_host=None, pg_port=None, pg_db=None, pg_user=N
     '''The entry point for running the sequence translator api server through gunicorn (http://gunicorn.org/)
     to run sequence translator dbbact rest server using gunicorn, use:
 
-    gunicorn 'dbbact_sequence_translator.Server_Main:gunicorn(server_type='main', debug_level=6)' -b 0.0.0.0:5021 --workers 4 --name=dbbact-sequence-translator
+    gunicorn 'dbbact_sequence_translator.Server_Main:gunicorn(server_type='main', debug_level=6)' -b 127.0.0.1:5021 --workers 4 --name=dbbact-sequence-translator
 
 
     Parameters
