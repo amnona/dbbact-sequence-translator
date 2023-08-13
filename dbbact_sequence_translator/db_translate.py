@@ -421,9 +421,11 @@ def get_species_seqs(con, cur, species, dbid=1):
 	species = species.lower()
 	try:
 		if dbid > 0:
-			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s AND dbid=%s', [species, dbid])
+			cur.execute("SELECT wholeseqid FROM wholeseqnamestable WHERE search_name LIKE %s AND dbid=%s", [species+'%%', dbid])
+			# cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s AND dbid=%s', [species, dbid])
 		else:
-			cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s', [species])
+			# cur.execute('SELECT wholeseqid FROM wholeseqnamestable WHERE species=%s', [species])
+			cur.execute("SELECT wholeseqid FROM wholeseqnamestable WHERE search_name LIKE %s", [species+'%%'])
 		res = cur.fetchall()
 		debug(2, 'found %d wholeseq ids matching the species %s' % (len(res), species))
 		wsids = []
