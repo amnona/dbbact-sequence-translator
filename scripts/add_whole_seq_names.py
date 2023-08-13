@@ -56,6 +56,7 @@ def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type, add_o
 	cur.execute('DROP INDEX IF EXISTS wholeseqnamestable_wholeseqid_dbid_idx')
 	cur.execute('DROP INDEX IF EXISTS wholeseqnamestable_wholeseqid_idx')
 	cur.execute('DROP INDEX IF EXISTS wholeseqnamestable_species_idx')
+	cur.execute('DROP INDEX IF EXISTS idx_search_name')
 
 	# iterate over the region specific whole sequence fasta file and add all sequences
 	debug(1, 'processing fasta file %s' % whole_seq_fasta_name)
@@ -112,7 +113,11 @@ def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type, add_o
 				# we don't add non-species containing silva ids
 				if add_only_species:
 					continue
-			cur.execute('INSERT INTO WholeSeqNamesTable (wholeseqid, dbid, name, fullname, species) VALUES (%s, %s, %s, %s, %s)', [cid, seqdb_id, ctax, chead.lower(), cspecies])
+
+			# for the search_name, remove the [ ] from the species name
+			csearch_name = cspecies.replace('[', '').replace(']','')
+
+			cur.execute('INSERT INTO WholeSeqNamesTable (wholeseqid, dbid, name, fullname, species, search_name) VALUES (%s, %s, %s, %s, %s, %s)', [cid, seqdb_id, ctax, chead.lower(), cspecies, csearch_name])
 			ok_seqs += 1
 		if seq_count % 10000 == 0:
 			debug(1, 'processed %d' % seq_count)
@@ -125,6 +130,8 @@ def add_whole_seq_names(con, cur, seqdb_id, whole_seq_fasta_name, db_type, add_o
 	cur.execute('CREATE INDEX "wholeseqnamestable_wholeseqid_idx" ON "public"."wholeseqnamestable"("wholeseqid")')
 	debug(2, 'wholeseqnamestable_species_idx')
 	cur.execute('CREATE INDEX "wholeseqnamestable_species_idx" ON "public"."wholeseqnamestable"("species" text_pattern_ops)')
+	debug(2, 'idx_search_name')
+	cur.execute('CREATE INDEX "idx_search_name" ON "public"."wholeseqnamestable"("search_name")')
 
 	debug(2, 'commiting')
 	con.commit()
