@@ -23,7 +23,7 @@ def iter_fasta_seqs(filename):
 	header - the header
 	"""
 
-	fl = open(filename, "rU")
+	fl = open(filename, "r")
 	cseq = ''
 	chead = ''
 	for cline in fl:
